@@ -31,6 +31,9 @@ public class Challenge1 : MonoBehaviour
 
 		//Create a Vector4 with parameters x, y, width, height
         //Pass this to the shader using SetVector
+        shader.SetVector("squre", 
+            new Vector4(texResolution >> 2, texResolution >> 2,
+            texResolution >> 1, texResolution >> 1));
         
         shader.SetTexture(kernelHandle, "Result", outputTexture);
        

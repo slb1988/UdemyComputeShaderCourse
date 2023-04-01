@@ -1,13 +1,67 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel SolidRed
+#pragma kernel SolidYellow
+#pragma kernel SplitScreen
+#pragma kernel Circle
+#pragma kernel Square
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
+int texResolution;
 
 [numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void SolidRed (uint3 id : SV_DispatchThreadID)
 {
      Result[id.xy] = float4(1.0, 0.0, 0.0, 1.0);
 }
 
+[numthreads(8,8,1)]
+void SolidYellow (uint3 id : SV_DispatchThreadID)
+{
+     Result[id.xy] = float4(1.0, 1.0, 0.0, 1.0);
+}
+
+[numthreads(8,8,1)]
+void SplitScreen (uint3 id : SV_DispatchThreadID)
+{
+     int halfResolution = texResolution >> 1;
+     if (id.x < halfResolution && id.y < halfResolution)
+          Result[id.xy] = float4(0.0f, 0.0f, 0.0f, 0.0f);
+     else
+          Result[id.xy] = float4(1.0, 1.0, 0.0, 1.0);
+}
+
+float inCircle(float2 dt, float radius)
+{
+     //length(dt)/radius
+     return (length(dt) < radius ? 1: 0);
+}
+
+[numthreads(8,8,1)]
+void Circle (uint3 id : SV_DispatchThreadID)
+{
+     int halfResolution = texResolution >> 1;
+     // float2 v = float2(id.x - halfResolution, id.y - halfResolution);
+     // float len = length(v);
+     float res = inCircle((float2)((int2)id.xy - halfResolution),
+          (float)(halfResolution>>1));
+     Result[id.xy] = float4(res, res, 0, 1);
+          //float4(step(len, 1) ? 0.0 : len,
+          //step(len, 1) ? 0 : len, 0, 1);
+}
+
+[numthreads(8,8,1)]
+void Square (uint3 id : SV_DispatchThreadID)
+{
+     int halfResolution = texResolution >> 1;
+     int quareRes = halfResolution >> 1;
+     int2 v = (int2)id.xy - halfResolution;
+     if (v.x > -quareRes && v.x < quareRes
+          && v.y > -quareRes && v.y < quareRes)
+          Result[id.xy] = float4(1.0, 1.0, 0.0, 1.0);
+     else
+          Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);
+
+     
+}

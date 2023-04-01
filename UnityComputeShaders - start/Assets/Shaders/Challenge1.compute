@@ -5,10 +5,15 @@
 // with cs.SetTexture
 RWTexture2D<float4> Result;
 //Create a float4 to hold the rectangle that defines the square
+float4 squre;
+// 这里C#赋值给了另一个变量，会导致显示黑色，如何定位
 
 //Return 1 if pt is in the rect parameter and 0 otherwise
+// 算法暂时没弄明白，晚点再看
 float inSquare( float2 pt, float4 rect ){
-    return 0.0;
+    float horz = step( rect.x, pt.x ) - step( rect.x + rect.z, pt.x );
+    float vert = step( rect.y, pt.y ) - step( rect.y + rect.w, pt.y );
+    return horz * vert;
 }
 
 [numthreads(8,8,1)]
@@ -17,5 +22,13 @@ void Square (uint3 id : SV_DispatchThreadID)
 	//Call the inSquare function to set res
     float res = 0;
 
+    // int2 v = (int2)id.xy;
+    // if (v.x > squre.x && v.x < squre.x + squre.z
+    //      && v.y > squre.y && v.y < squre.y + squre.w)
+    //          Result[id.xy] = float4(0.0, 0.0, 1.0, 1.0);
+    // else
+    //     Result[id.xy] = float4(0.0, 0.0, 0.0, 1.0);
+
+    res = inSquare((float2)id.xy, squre);
     Result[id.xy] = float4(0.0, 0.0, res, 1.0);
 }
