@@ -3,7 +3,27 @@
 
 float delta;
 
+struct vertex
+{
+    float3 position;
+    float3 normal;
+};
+
+RWStructuredBuffer<vertex> vertexBuffer;
+StructuredBuffer<vertex> initialBuffer;
+float radius;
+
 [numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+    float3 initialPos = initialBuffer[id.x].position;
+    float3 s = float3(normalize(initialPos) * radius * 0.01);
+    float3 pos = lerp(initialPos, s, delta);
+
+    float3 initialNormal = initialBuffer[id.x].position;
+    float3 snormal = normalize(initialPos);
+    float3 normal = lerp(initialNormal, snormal, delta);
+
+    vertexBuffer[id.x].position = pos;
+    vertexBuffer[id.x].normal = normal;
 }
