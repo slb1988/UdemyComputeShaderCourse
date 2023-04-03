@@ -30,8 +30,10 @@ public class GaussianBlurHighlight : BaseCompletePP
 
     }
 
-    float[] SetWeightsArray(int radius, float sigma)
+    float[] SetWeightsArray(int radius)
     {
+        float sigma = (float)blurRadius / 1.5f;
+
         int total = radius * 2 + 1;
         float[] weights = new float[total];
         float sum = 0.0f;
@@ -58,10 +60,8 @@ public class GaussianBlurHighlight : BaseCompletePP
         if (weightsBuffer != null)
             weightsBuffer.Dispose();
 
-        float sigma = (float)blurRadius / 1.5f;
-
         weightsBuffer = new ComputeBuffer(blurRadius * 2 + 1, sizeof(float));
-        float[] blurWeights = SetWeightsArray(blurRadius, sigma);
+        float[] blurWeights = SetWeightsArray(blurRadius);
         weightsBuffer.SetData(blurWeights);
 
         shader.SetBuffer(kernelHorzPassID, "weights", weightsBuffer);
