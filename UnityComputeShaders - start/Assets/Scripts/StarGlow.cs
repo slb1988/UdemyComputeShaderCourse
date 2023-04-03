@@ -51,7 +51,22 @@ public class StarGlow : MonoBehaviour
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        Graphics.Blit(source, destination);
+        RenderTexture brightnessTex = RenderTexture.GetTemporary(
+            source.width / divide, source.height / divide, source.depth, source.format);
+        RenderTexture blurredTex1 = RenderTexture.GetTemporary(brightnessTex.descriptor);
+        RenderTexture blurredTex2 = RenderTexture.GetTemporary(brightnessTex.descriptor);
+        RenderTexture compositeTex = RenderTexture.GetTemporary(brightnessTex.descriptor);
+        
+        material.SetVector(brightnessSettingsID, new Vector3(threshold, intensity, attenuation));
+        
+        Graphics.Blit(source, brightnessTex, material, 1);
+        
+        Graphics.Blit(brightnessTex, destination, material, 0);
+        
+        RenderTexture.ReleaseTemporary(brightnessTex);
+        RenderTexture.ReleaseTemporary(blurredTex1);
+        RenderTexture.ReleaseTemporary(blurredTex2);
+        RenderTexture.ReleaseTemporary(compositeTex);
     }
 
     #endregion Method

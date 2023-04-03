@@ -5,6 +5,9 @@
         [HideInInspector]
         _MainTex("Texture", 2D) = "white" {}
         _BrightnessSettings("(Threshold, Intensity, Attenuation, -)", Vector) = (0.8, 1.0, 0.95, 0.0)
+        [KeywordEnum(ADDITIVE, SCREEN, COLORED_ADDITIVE, COLORED_SCREEN, DEBUG)]
+        _COMPOSITE_TYPE("Composite Type", Float) = 0
+
     }
     SubShader
     {
@@ -36,6 +39,23 @@
             fixed4 frag(v2f_img input) : SV_Target
             {
                 return tex2D(_MainTex, input.uv);
+            }
+
+            ENDCG
+        }
+        
+        // STEP 1
+        Pass {
+            CGPROGRAM
+
+            #pragma vertex vert_img
+            #pragma fragment frag
+
+            fixed4 frag(v2f_img input) : SV_Target
+            {
+                return tex2D(_MainTex, input.uv);
+                float4 color = tex2D(_MainTex, input.uv);
+                return max(color - BRIGHTNESS_THRESHOLD, 0) * INTENSITY;
             }
 
             ENDCG
